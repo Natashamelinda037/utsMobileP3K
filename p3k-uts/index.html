@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>P3K - Panduan Darurat</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f3f4f6; color: #1f2937; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background: white; padding: 20px; position: relative; }
+        
+        header { text-align: center; margin-bottom: 24px; margin-top: 10px; }
+        h1 { color: #dc2626; font-size: 26px; font-weight: 800; }
+        .subtitle { color: #6b7280; font-size: 14px; margin-top: 4px; }
+
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .nav-tab { flex: 1; padding: 12px; border: 2px solid #e5e7eb; background: white; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .nav-tab.active { background: #dc2626; color: white; border-color: #dc2626; }
+        .nav-tab:not(.active):hover { background: #fef2f2; }
+
+        .search-box { width: 100%; padding: 14px; border: 2px solid #fecaca; border-radius: 12px; font-size: 16px; margin-bottom: 20px; outline: none; }
+        .search-box:focus { border-color: #dc2626; }
+
+        .sos-btn { width: 100%; padding: 16px; background: #dc2626; color: white; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; text-decoration: none; box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2); }
+        .sos-btn h2 { font-size: 16px; font-weight: bold; }
+        .sos-btn p { font-size: 12px; opacity: 0.9; }
+        .sos-btn span { background: white; color: #dc2626; padding: 8px 16px; border-radius: 999px; font-weight: bold; font-size: 14px; }
+
+        .section-title { font-size: 18px; font-weight: bold; margin: 24px 0 12px 0; color: #111827; display: flex; align-items: center; gap: 8px; }
+        
+        .card { background: white; border: 1px solid #f3f4f6; border-left: 5px solid #dc2626; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card:hover { background: #fef2f2; }
+        .card-info { flex: 1; cursor: pointer; margin: 0 12px; }
+        .card-title { font-weight: bold; font-size: 16px; color: #111827; }
+        .card-desc { font-size: 13px; color: #6b7280; margin-top: 4px; }
+        .card-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; background: #f3f4f6; }
+        
+        .save-btn { 
+            background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; 
+            padding: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; width: 40px; height: 40px;
+        }
+        .save-btn:hover { background: #e5e7eb; }
+        .save-btn:active { transform: scale(0.95); }
+        .save-btn svg { width: 20px; height: 20px; }
+        .save-btn.outline svg { stroke: #6b7280; fill: none; stroke-width: 2.5; }
+        .save-btn.filled svg { stroke: #2563eb; fill: #2563eb; }
+
+        .delete-btn { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
+        .delete-btn:hover { background: #fee2e2; }
+        .delete-btn svg { width: 16px; height: 16px; }
+
+        .records-header { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+        .records-header h2 { font-size: 20px; margin-bottom: 8px; }
+        .records-header p { font-size: 13px; opacity: 0.9; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #6b7280; }
+        .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+
+        #detail-view { display: none; }
+        .back-btn { color: #dc2626; font-weight: bold; font-size: 16px; cursor: pointer; border: none; background: none; margin-bottom: 20px; }
+        .detail-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; background: #f3f4f6; }
+        .detail-header { border-bottom: 2px solid #fee2e2; padding-bottom: 16px; margin-bottom: 20px; }
+        .detail-title { font-size: 22px; font-weight: bold; color: #111827; margin-bottom: 12px; }
+        .detail-gejala { background: #f9fafb; padding: 12px; border-radius: 8px; font-size: 14px; color: #4b5563; font-style: italic; }
+        .steps-title { font-size: 18px; font-weight: bold; color: #dc2626; margin-bottom: 16px; }
+        .step-item { display: flex; gap: 16px; background: #f9fafb; padding: 16px; border-radius: 12px; margin-bottom: 12px; }
+        .step-num { flex-shrink: 0; width: 32px; height: 32px; background: #dc2626; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .step-text { font-size: 15px; color: #1f2937; line-height: 1.5; padding-top: 4px; }
+        .disclaimer { margin-top: 32px; padding: 16px; background: #fefce8; border-left: 4px solid #facc15; border-radius: 8px; font-size: 13px; color: #854d0e; }
+
+        .firebase-status { font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px; padding-top: 12px; border-top: 1px solid #f3f4f6; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div id="home-view">
+            <header>
+                <h1>🚑 Panduan P3K </h1>
+                <p class="subtitle">Panduan Cepat Darurat Medis</p>
+            </header>
+
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showHome()">Panduan</button>
+                <button class="nav-tab" onclick="showRecords()">Tersimpan</button>
+            </div>
+
+            <a href="tel:118" class="sos-btn">
+                <div>
+                    <h2>DARURAT?</h2>
+                    <p>Hubungi Ambulans</p>
+                </div>
+                <span>CALL 118</span>
+            </a>
+
+            <input type="text" id="search-input" class="search-box" placeholder="Cari gejala (misal: merah, darah)...">
+
+            <h2 class="section-title">Semua Panduan</h2>
+            <div id="p3k-list"></div>
+
+            <div class="firebase-status" id="fb-status">Menyimpan data secara lokal...</div>
+        </div>
+
+        <div id="records-view" style="display: none;">
+            <header>
+                <h1>Catatan Medis</h1>
+                <p class="subtitle">Referensi Riwayat Keluarga</p>
+            </header>
+
+            <div class="nav-tabs">
+                <button class="nav-tab" onclick="showHome()">Panduan</button>
+                <button class="nav-tab active" onclick="showRecords()">Tersimpan</button>
+            </div>
+
+            <div class="records-header">
+                <h2>Panduan yang Disimpan</h2>
+                <p>Akses cepat panduan dengan riwayat medis keluarga</p>
+            </div>
+
+            <div id="records-list"></div>
+
+            <div class="firebase-status" id="fb-status-records">Menyimpan data secara lokal...</div>
+        </div>
+
+        <div id="detail-view">
+            <button class="back-btn" onclick="goBack()">← Kembali</button>
+            <img id="d-gambar" class="detail-img" src="" alt="Ilustrasi">
+            <div class="detail-header">
+                <h1 class="detail-title" id="d-judul"></h1>
+                <div class="detail-gejala">
+                    <strong>Gejala: </strong> <span id="d-gejala"></span>
+                </div>
+            </div>
+            <h2 class="steps-title">Langkah Penanganan</h2>
+            <div id="d-langkah"></div>
+            <div class="disclaimer">
+                <strong>️ Penting:</strong> Panduan ini hanya untuk pertolongan pertama. Segera hubungi medis profesional jika kondisi memburuk.
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        // 1. DATA P3K
+        const dataP3K = [
+            {
+                id: "luka-bakar",
+                judul: "Luka Bakar Ringan",
+                gejala: "Kulit kemerahan, terasa perih, sedikit bengkak",
+                langkah: [
+                    "Siram area yang terbakar dengan air mengalir (suhu ruang) selama 10-20 menit.",
+                    "Jangan gunakan pasta gigi, mentega, atau es batu langsung.",
+                    "Tutup luka dengan kain kasa steril yang longgar.",
+                    "Minum obat pereda nyeri jika perlu."
+                ],
+                gambar: "image/luka-bakar.jpeg"
+            },
+            {
+                id: "mimisan",
+                judul: "Mimisan (Epistaksis)",
+                gejala: "Keluar darah dari lubang hidung",
+                langkah: [
+                    "Duduk tegak dan condongkan badan sedikit ke DEPAN (jangan ke belakang).",
+                    "Pencet cuping hidung yang lunak dengan jari selama 10 menit penuh.",
+                    "Bernapaslah lewat mulut.",
+                    "Kompres dingin di pangkal hidung jika perlu."
+                ],
+                gambar: "image/mimisan.jpeg"
+            },
+            {
+                id: "tersedak",
+                judul: "Tersedak (Benda Asing)",
+                gejala: "Tidak bisa bicara, batuk, atau bernapas, memegang leher",
+                langkah: [
+                    "Minta korban untuk batuk sekuat tenaga.",
+                    "Jika tidak bisa, lakukan 5 tepukan kuat di antara tulang belikat.",
+                    "Jika masih tersumbat, lakukan 5 tekanan perut (Heimlich Maneuver).",
+                    "Segera hubungi ambulans (118/119) jika korban tidak sadarkan diri."
+                ],
+                gambar: "image/tersedak.jpeg"
+            },
+            {
+                id: "patah-tulang",
+                judul: "Patah Tulang (Fraktur)",
+                gejala: "Nyeri hebat, bengkak, bentuk tulang tidak normal",
+                langkah: [
+                    "Jangan mencoba meluruskan atau menggerakkan tulang yang patah.",
+                    "Imobilisasi area yang cedera menggunakan bidai darurat.",
+                    "Kompres es yang dibalut kain di area bengkak.",
+                    "Segera bawa ke UGD atau hubungi ambulans."
+                ],
+                gambar: "image/patah-tulang.jpg"
+            },
+            {
+                id: "demam-tinggi",
+                judul: "Demam Tinggi",
+                gejala: "Suhu tubuh di atas 38°C, tubuh terasa panas, menggigil, sakit kepala",
+                langkah: [
+                    "Kompres tubuh dengan air hangat (bukan air dingin/es) di dahi, ketiak, dan lipatan paha.",
+                    "Minum banyak air putih untuk mencegah dehidrasi.",
+                    "Kenakan pakaian yang tipis dan nyaman agar panas tubuh bisa keluar.",
+                    "Berikan obat penurun demam (Paracetamol) sesuai dosis."
+                ],
+                gambar: "image/demam.jpg"
+            },
+            {
+                id: "luka-teriris",
+                judul: "Luka Teriris / Terpotong",
+                gejala: "Pendarahan dari kulit yang terbelah, rasa nyeri tajam",
+                langkah: [
+                    "Cuci tangan dengan sabun sebelum menangani luka.",
+                    "Bersihkan luka dengan air mengalir yang bersih.",
+                    "Tekan area yang berdarah dengan kain bersih atau kasa steril selama beberapa menit.",
+                    "Tutup luka dengan plester atau perban jika pendarahan sudah berhenti."
+                ],
+                gambar: "image/luka-iris.jpg"
+            },
+            {
+                id: "gigitan-serangga",
+                judul: "Gigitan/Sengatan Serangga",
+                gejala: "Kemerahan, bengkak, gatal, dan nyeri di area gigitan",
+                langkah: [
+                    "Pindahkan korban ke area yang aman dari serangga.",
+                    "Cuci area gigitan dengan sabun dan air mengalir.",
+                    "Kompres dingin (es dibalut kain) untuk mengurangi bengkak dan nyeri.",
+                    "Jangan menggaruk area gigitan untuk mencegah infeksi."
+                ],
+                gambar: "image/gigitan.jpeg"
+            },
+            {
+                id: "kejang",
+                judul: "Kejang (Ayan/Epilepsi)",
+                gejala: "Gerakan tubuh tidak terkontrol, kaku, mata mendelik, tidak responsif",
+                langkah: [
+                    "JANGAN masukkan benda apapun ke dalam mulut korban.",
+                    "Miringkan posisi tubuh korban ke samping agar air liur bisa keluar.",
+                    "Singkirkan benda berbahaya di sekitar korban.",
+                    "Catat durasi kejang dan segera hubungi medis jika kejang lebih dari 5 menit."
+                ],
+                gambar: "image/kejang.png"
+            },
+            {
+                id: "mata-benda-asing",
+                judul: "Mata Kemasukan Benda Asing",
+                gejala: "Mata merah, berair, terasa mengganjal, silau",
+                langkah: [
+                    "JANGAN menggosok mata karena bisa melukai kornea.",
+                    "Bilas mata dengan air bersih yang mengalir atau cairan infus (NaCl).",
+                    "Kedip-kedipkan mata di dalam air bersih untuk membantu benda asing keluar.",
+                    "Jika benda tidak keluar, segera ke dokter mata."
+                ],
+                gambar: "image/mata.jpg"
+            },
+            {
+                id: "tenggelam",
+                judul: "Tenggelam (Drowning)",
+                gejala: "Kesulitan bernapas, batuk-batuk, tubuh lemas, tidak sadarkan diri",
+                langkah: [
+                    "Angkat korban dari air dengan aman, pastikan penolong juga aman.",
+                    "Cek kesadaran dan napas korban.",
+                    "Jika tidak bernapas, segera lakukan RJP (Resusitasi Jantung Paru).",
+                    "Ganti pakaian basah dengan yang kering dan selimuti agar tubuh hangat."
+                ],
+                gambar: "image/tenggelam.jpg"
+            },
+            {
+                id: "keracunan-makanan",
+                judul: "Keracunan Makanan",
+                gejala: "Mual, muntah, diare, kram perut, demam",
+                langkah: [
+                    "Hentikan konsumsi makanan yang dicurigai.",
+                    "Minum banyak air atau oralit untuk mengganti cairan tubuh.",
+                    "JANGAN memaksakan korban muntah (terutama jika menelan bahan kimia).",
+                    "Segera bawa ke IGD jika gejala berat atau terjadi pada anak kecil."
+                ],
+                gambar: "image/keracunan.jpeg"
+            },
+            {
+                id: "serangan-jantung",
+                judul: "Serangan Jantung",
+                gejala: "Nyeri dada hebat menjalar ke lengan/kiri, sesak napas, keringat dingin",
+                langkah: [
+                    "Segera hubungi ambulans (118/119).",
+                    "Baringkan korban dengan posisi setengah duduk agar mudah bernapas.",
+                    "Longgarkan pakaian yang ketat di area dada dan leher.",
+                    "Jika korban tidak sadar dan tidak bernapas, segera lakukan RJP (CPR)."
+                ],
+                gambar: "image/jantung.jpg"
+            },
+            {
+                id: "stroke",
+                judul: "Stroke",
+                gejala: "Wajah perot, lengan lemah, bicara pelo/tiba-tiba tidak jelas (Metode FAST)",
+                langkah: [
+                    "Segera hubungi ambulans (118/119) - Waktu sangat kritis!",
+                    "Baringkan korban dengan posisi kepala sedikit lebih tinggi.",
+                    "JANGAN beri makan atau minum karena berisiko tersedak.",
+                    "Catat waktu pasti gejala pertama kali muncul untuk info dokter."
+                ],
+                gambar: "image/stroke.jpg"
+            },
+            {
+                id: "tersetrum-listrik",
+                judul: "Tersetrum Listrik",
+                gejala: "Luka bakar di kulit, kejang otot, pingsan, atau henti napas",
+                langkah: [
+                    "MATIKAN sumber listrik utama terlebih dahulu. JANGAN sentuh korban jika masih terkena arus!",
+                    "Gunakan benda kering (kayu, plastik) untuk memisahkan korban dari sumber listrik.",
+                    "Cek napas dan nadi korban. Lakukan RJP jika diperlukan.",
+                    "Segera bawa ke IGD untuk cek kerusakan organ dalam."
+                ],
+                gambar: "image/listrik.jpg"
+            },
+            {
+                id: "gigitan-ular",
+                judul: "Gigitan Ular",
+                gejala: "Dua lubang bekas taring, bengkak, nyeri hebat, mual, pandangan kabur",
+                langkah: [
+                    "JANGAN mencuci, menekan, atau menusuk tempat gigitan",
+                    "JANGAN hisap racun atau mengikat area gigitan terlalu kencang (torniket).",
+                    "Imobilisasi (cegak gerak) bagian tubuh yang digigit, posisikan lebih rendah dari jantung.",
+                    "Tenangkan korban agar detak jantung tidak semakin cepat.",
+                    "Segera bawa ke rumah sakit yang memiliki bisa ular (anti-venom)."
+                ],
+                gambar: "image/ular.jpg"
+            },
+            {
+                id: "syok-anafilaktik",
+                judul: "Syok Anafilaktik (Alergi Berat)",
+                gejala: "Bengkak di wajah/bibir, sulit bernapas, gatal seluruh tubuh, pingsan",
+                langkah: [
+                    "Segera hubungi ambulans (118/119).",
+                    "Jika korban punya obat EpiPen, segera suntikkan di paha luar.",
+                    "Baringkan korban dan tinggikan posisi kakinya.",
+                    "Longgarkan pakaian dan pantau napas korban sampai bantuan datang."
+                ],
+                gambar: "image/alergi.jpg"
+            },
+            {
+                id: "serangan-asma",
+                judul: "Serangan Asma",
+                gejala: "Mengi (napas berbunyi ngik-ngik), sesak napas, batuk, dada terasa berat",
+                langkah: [
+                    "Duduk tegak dan bantu korban agar tetap tenang.",
+                    "Bantu gunakan inhaler pereda (biasanya berwarna biru) sesuai dosis.",
+                    "Tarik napas panjang dan perlahan lewat hidung, buang lewat mulut.",
+                    "Segera ke IGD jika inhaler tidak mempan atau bibir mulai membiru."
+                ],
+                gambar: "image/asma.jpg"
+            },
+            {
+                id: "hipotermia",
+                judul: "Hipotermia (Suhu Tubuh Rendah)",
+                gejala: "Menggigil hebat, bicara pelo, mengantuk, kulit pucat/dingin",
+                langkah: [
+                    "Pindahkan korban ke tempat yang hangat dan kering.",
+                    "Ganti pakaian basah dengan pakaian kering dan selimuti tubuh.",
+                    "Berikan minuman hangat (manis) JIKA korban masih sadar sepenuhnya.",
+                    "JANGAN menggosok tubuh korban dengan keras karena bisa merusak jaringan."
+                ],
+                gambar: "image/hipotermia.jpg"
+            },
+            {
+                id: "heat-stroke",
+                judul: "Heat Stroke (Sengatan Panas)",
+                gejala: "Suhu tubuh sangat tinggi (>40°C), kulit panas dan kering, pusing, mual",
+                langkah: [
+                    "Pindahkan korban ke tempat teduh atau ber-AC segera.",
+                    "Kompres tubuh dengan air dingin/es di leher, ketiak, dan selangkangan.",
+                    "Kipas-kipas tubuh korban agar suhu cepat turun.",
+                    "Segera bawa ke IGD karena ini adalah kondisi gawat darurat."
+                ],
+                gambar: "image/panas.jpg"
+            },
+            {
+                id: "henti-jantung",
+                judul: "Henti Jantung (Cardiac Arrest)",
+                gejala: "Tidak sadar, tidak bernapas, tidak ada nadi",
+                langkah: [
+                    "Segera hubungi 118 dan cari AED terdekat.",
+                    "Lakukan RJP (CPR): 30 kali tekan dada keras & cepat, lalu 2 kali napas buatan.",
+                    "Lakukan terus menerus sampai bantuan datang atau korban sadar.",
+                    "Gunakan AED segera jika tersedia dan ikuti instruksi suara alat."
+                ],
+                gambar: "image/cpr.jpg"
+            },
+            {
+                id: "luka-lecet",
+                judul: "Luka Lecet (Abrasi)",
+                gejala: "Kulit terkelupas, perih, berdarah tipis, kotoran menempel",
+                langkah: [
+                    "Cuci tangan penolong dengan sabun.",
+                    "Bersihkan luka dengan air mengalir dan sabun lembut.",
+                    "Oleskan antiseptik (Betadine) tipis-tipis.",
+                    "Biarkan kering atau tutup dengan kasa steril jika berisiko kotor."
+                ],
+                gambar: "image/lecet.jpg"
+            },
+            {
+                id: "keseleo",
+                judul: "Keseleo (Sprain)",
+                gejala: "Bengkak, nyeri, memar, sulit menggerakkan sendi",
+                langkah: [
+                    "Hentikan aktivitas segera (Rest).",
+                    "Kompres es selama 15-20 menit setiap 2 jam (Ice).",
+                    "Balut dengan perban elastis tapi jangan terlalu ketat (Compression).",
+                    "Tinggikan posisi cedera lebih tinggi dari jantung (Elevation)."
+                ],
+                gambar: "image/keseleo.jpg"
+            },
+            {
+                id: "cedera-kepala",
+                judul: "Cedera Kepala (Gegar Otak)",
+                gejala: "Benjol, pusing, mual, muntah, bingung, mengantuk",
+                langkah: [
+                    "Hentikan seluruh aktivitas dan beristirahat.",
+                    "Batasi pergerakan kepala dan leher",
+                    "Perhatikan perubahan perilaku selama 24 jam setelah cedera kepala terjadi.",
+                    "Segera ke IGD jika muntah hebat, pingsan, atau keluar cairan dari telinga/hidung."
+                ],
+                gambar: "image/kepala.jpg"
+            },
+            {
+                id: "syok",
+                judul: "Syok (Kegagalan Sirkulasi)",
+                gejala: "Kulit pucat/dingin, napas cepat, nadi lemah, bingung/gelisah",
+                langkah: [
+                    "Baringkan korban di tempat datar.",
+                    "Tinggikan posisi kaki sekitar 30 cm (kecuali ada cedera kepala/kaki).",
+                    "Selimuti tubuh agar tetap hangat.",
+                    "JANGAN beri makan atau minum, segera hubungi ambulans."
+                ],
+                gambar: "image/syok.jpg"
+            },
+            {
+                id: "keracunan-kimia",
+                judul: "Keracunan Bahan Kimia Rumah Tangga",
+                gejala: "Luka bakar di mulut, mual, muntah, sulit menelan",
+                langkah: [
+                    "JANGAN paksa korban muntah (bisa melukai kerongkongan).",
+                    "Bilas mulut korban dengan air bersih.",
+                    "Baca label kemasan bahan kimia dan bawa ke IGD.",
+                    "Segera hubungi Poison Control Center atau ambulans."
+                ],
+                gambar: "image/kimia.jpg"
+            },
+            {
+                id: "luka-bakar-kimia",
+                judul: "Luka Bakar Bahan Kimia",
+                gejala: "Kulit melepuh, hangus, atau berubah warna, nyeri hebat",
+                langkah: [
+                    "Siram area yang terkena dengan air mengalir selama minimal 20 menit.",
+                    "JANGAN oleskan salep atau obat apapun.",
+                    "Bungkus dengan kain bersih dan segera ke IGD."
+                ],
+                gambar: "image/bakar-kimia.jpg"
+            },
+            {
+                id: "rabies",
+                judul: "Pencegahan Rabies",
+                gejala: "Riwayat digigit hewan liar/tidak dikenal, luka dalam",
+                langkah: [
+                    "Segera cuci luka dengan sabun dan air mengalir 15 menit.",
+                    "Jangan menutup luka rapat-rapat.",
+                    "Segera ke IGD untuk mendapatkan Vaksin Anti Rabies (VAR).",
+                    "Observasi hewan penggigit jika memungkinkan."
+                ],
+                gambar: "image/rabies.jpg"
+            },
+            {
+                id: "tetanus",
+                judul: "Pencegahan Tetanus",
+                gejala: "Luka dalam, kotor, terkena tanah/besi berkarat",
+                langkah: [
+                    "Bersihkan luka dengan air mengalir dan sabun.",
+                    "Oleskan antiseptik.",
+                    "Segera ke fasilitas kesehatan untuk suntik booster Tetanus (TT) jika >5 tahun.",
+                    "Pantau tanda kekakuan otot rahang/leher."
+                ],
+                gambar: "image/tetanus.jpg"
+            },
+            {
+                id: "hipoglikemia",
+                judul: "Hipoglikemia (Gula Darah Rendah)",
+                gejala: "Keringat dingin, gemetar, pusing, lemas, jantung berdebar",
+                langkah: [
+                    "Segera beri minum manis (sirup, teh manis) atau permen.",
+                    "Jika sadar, beri makan karbohidrat kompleks (roti/biskuit).",
+                    "JANGAN paksa makan/minum jika korban mulai tidak sadar.",
+                    "Pantau gula darah jika ada alatnya, bawa ke dokter jika tidak membaik."
+                ],
+                gambar: "image/hipoglikemia.jpg"
+            },
+            {
+                id: "dehidrasi",
+                judul: "Dehidrasi",
+                gejala: "Haus hebat, mulut kering, urine gelap, pusing, lemas",
+                langkah: [
+                    "Minum air putih sedikit-sedikit tapi sering.",
+                    "Konsumsi oralit untuk mengganti elektrolit.",
+                    "Hindari minuman bersoda, berkafein, atau terlalu manis.",
+                    "Segera ke IGD jika tidak bisa minum atau urine tidak keluar >8 jam."
+                ],
+                gambar: "image/dehidrasi.jpg"
+            },
+            {
+                id: "demam-kejang",
+                judul: "Demam Kejang pada Anak",
+                gejala: "Kejang saat demam tinggi, mata mendelik, tubuh kaku",
+                langkah: [
+                    "Baringkan anak di tempat aman dan datar.",
+                    "Miringkan kepala agar tidak tersedak.",
+                    "JANGAN masukkan sendok/jari ke mulut.",
+                    "Catat durasi kejang, segera ke IGD jika lebih dari 5 menit."
+                ],
+                gambar: "image/demam-kejang.jpg"
+            },
+            {
+                id: "ruam-popok",
+                judul: "Ruam Popok",
+                gejala: "Kemerahan di area popok, kulit perih, bayi rewel",
+                langkah: [
+                    "Ganti popok sesering mungkin.",
+                    "Bersihkan dengan air hangat, tepuk-tepuk hingga kering.",
+                    "Oleskan krim barrier (zinc oxide) tebal.",
+                    "Biarkan area terbuka tanpa popok beberapa saat."
+                ],
+                gambar: "image/ruam.jpg"
+            },
+            {
+                id: "kolik-bayi",
+                judul: "Kolik pada Bayi",
+                gejala: "Menangis hebat lebih dari 3 jam, perut keras, kaki ditarik ke perut",
+                langkah: [
+                    "Gendong bayi dalam posisi tegak.",
+                    "Usap punggung atau perut bayi dengan lembut.",
+                    "Buat suara 'white noise' (suara kipas/vacuum).",
+                    "Hubungi dokter jika bayi demam atau muntah."
+                ],
+                gambar: "image/kolik.jpg"
+            },
+            {
+                id: "sakit-telinga",
+                judul: "Sakit Telinga",
+                gejala: "Nyeri di dalam telinga, demam, cairan keluar",
+                langkah: [
+                    "Kompres hangat di area telinga.",
+                    "Minum obat pereda nyeri.",
+                    "JANGAN masukkan cotton bud atau benda lain.",
+                    "Segera ke dokter jika keluar cairan/nanah."
+                ],
+                gambar: "image/telinga.jpg"
+            },
+            {
+                id: "infeksi-mata",
+                judul: "Infeksi Mata (Konjungtivitis)",
+                gejala: "Mata merah, belekan, gatal, berair",
+                langkah: [
+                    "Cuci tangan dengan sabun sebelum menyentuh mata.",
+                    "Kompres hangat atau dingin sesuai kenyamanan.",
+                    "Jangan berbagi handuk atau bantal.",
+                    "Ke dokter untuk obat tetes antibiotik jika perlu."
+                ],
+                gambar: "image/infeksi-mata.jpg"
+            },
+            {
+                id: "kram-otot",
+                judul: "Kram Otot",
+                gejala: "Otot mengejang keras, nyeri tiba-tiba, sulit digerakkan",
+                langkah: [
+                    "Hentikan aktivitas segera.",
+                    "Regangkan otot yang kram secara perlahan.",
+                    "Pijat lembut area yang kram.",
+                    "Kompres hangat dan minum air/elektrolit."
+                ],
+                gambar: "image/kram.jpg"
+            },
+            {
+                id: "hiperventilasi",
+                judul: "Hiperventilasi (Napas Cepat)",
+                gejala: "Napas sangat cepat dan dangkal, kesemutan, pusing",
+                langkah: [
+                    "Duduk tenang, tarik napas perlahan lewat hidung.",
+                    "Hembuskan napas lewat mulut (seperti meniup sedotan).",
+                    "Tarik napas dalam 4 detik, tahan 4 detik, buang 4 detik.",
+                    "Tenangkan diri, gejala akan hilang dalam beberapa menit."
+                ],
+                gambar: "image/napas.jpg"
+            },
+            {
+                id: "panik-attack",
+                judul: "Serangan Panik (Panic Attack)",
+                gejala: "Jantung berdebar, sesak, takut mati, keringat dingin",
+                langkah: [
+                    "Cari tempat tenang dan duduk.",
+                    "Lakukan teknik pernapasan 4-7-8.",
+                    "Fokus pada 5 benda di sekitar (teknik grounding).",
+                    "Ingatkan diri sendiri: 'Ini hanya serangan panik, akan berlalu'."
+                ],
+                gambar: "image/panik.jpg"
+            },
+            {
+                id: "pingsan",
+                judul: "Pingsan (Sinkop)",
+                gejala: "Hilang kesadaran sementara, wajah pucat, badan lemas",
+                langkah: [
+                    "Baringkan korban di tempat datar dan aman.",
+                    "Angkat kedua kaki lebih tinggi dari posisi kepala.",
+                    "Longgarkan pakaian yang ketat.",
+                    "JANGAN beri minum atau makanan saat korban belum sadar penuh."
+                ],
+                gambar: "image/pingsan.jpg"
+            }
+        ];
+
+        // 2. Penyimpanan lokal
+        let db = null;
+        let isFirebaseReady = false;
+        let currentSavedIds = new Set(JSON.parse(localStorage.getItem('p3k_medical_records') || '[]'));
+
+        function saveToLocalStorage() {
+            localStorage.setItem('p3k_medical_records', JSON.stringify([...currentSavedIds]));
+        }
+
+        // Load Firebase secara bertahap
+        const scriptApp = document.createElement('script');
+        scriptApp.src = "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js";
+        document.body.appendChild(scriptApp);
+
+        scriptApp.onload = function() {
+            const scriptDb = document.createElement('script');
+            scriptDb.src = "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js";
+            document.body.appendChild(scriptDb);
+
+            scriptDb.onload = function() {
+                console.log("Library Firebase berhasil dimuat!");
+                
+                const firebaseConfig = {
+                    apiKey: "AIzaSyC4ENRL4VmdyzwzZynyMofYLJJYKbQLpcc",
+                    authDomain: "p3k-uts.firebaseapp.com",
+                    projectId: "p3k-uts",
+                    storageBucket: "p3k-uts.firebasestorage.app",
+                    messagingSenderId: "846927718738",
+                    appId: "1:846927718738:web:0ae301ada36756629bf28b"
+                };
+
+                try {
+                    const app = firebase.initializeApp(firebaseConfig);
+                    db = firebase.firestore();
+                    isFirebaseReady = true;
+                    console.log("Firebase Connect!");
+                    
+                    document.getElementById('fb-status').textContent = 'Tersinkronisasi dengan Cloud';
+                    document.getElementById('fb-status').style.color = '#10b981';
+                    document.getElementById('fb-status-records').textContent = 'Tersinkronisasi dengan Cloud';
+                    document.getElementById('fb-status-records').style.color = '#10b981';
+
+                    // inii firebase langsung simpen dan udate tiap ada perubahan. ga usah refresh dah keganti
+                    db.collection("medical_records").onSnapshot((snapshot) => {
+                        currentSavedIds = new Set(snapshot.docs.map(doc => doc.id));
+                        saveToLocalStorage();
+                        renderAll();
+                        if(document.getElementById('records-view').style.display === 'block') renderRecordsList();
+                    });
+                } catch(e) { console.error("Firebase Init Error:", e); }
+            };
+        };
+
+        // Fungsi Simpan/Hapus
+        window.toggleSave = async function(id, isSaved) {
+            if (isSaved) {
+                currentSavedIds.delete(id);
+                if (isFirebaseReady) {
+                    try {
+                        await db.collection("medical_records").doc(id).delete();
+                        console.log("Berhasil hapus dari Firebase");
+                    } catch(e) { console.error("Gagal hapus:", e); }
+                }
+            } else {
+                currentSavedIds.add(id);
+                if (isFirebaseReady) {
+                    try {
+                        await db.collection("medical_records").doc(id).set({ id: id, savedAt: Date.now() });
+                        console.log("Berhasil simpan ke Firebase");
+                    } catch(e) { console.error("Gagal simpan:", e); }
+                }
+            }
+            saveToLocalStorage();
+            renderAll();
+            if(document.getElementById('records-view').style.display === 'block') renderRecordsList();
+        };
+
+        // 3. NAVIGASI & RENDER UI
+        const homeView = document.getElementById('home-view');
+        const recordsView = document.getElementById('records-view');
+        const detailView = document.getElementById('detail-view');
+        const listContainer = document.getElementById('p3k-list');
+        const recordsListContainer = document.getElementById('records-list');
+        const searchInput = document.getElementById('search-input');
+        let lastActiveView = 'home';
+
+        window.showHome = function() {
+            homeView.style.display = 'block';
+            recordsView.style.display = 'none';
+            detailView.style.display = 'none';
+            lastActiveView = 'home';
+            renderAll();
+        };
+
+        window.showRecords = function() {
+            homeView.style.display = 'none';
+            recordsView.style.display = 'block';
+            detailView.style.display = 'none';
+            lastActiveView = 'records';
+            renderRecordsList();
+        };
+
+        const bookmarkOutline = `<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>`;
+        const bookmarkFilled = `<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>`;
+        const trashIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
+
+        //ini itu kalau kode modenya di home dia itu terkait button save yang bookmark, kalau is saved dia jadi ada warna biruuu nyaaa
+        //tapii kalau dia mode nya di recordd di halaman record dia munculnya button hapus
+        function createCard(item, isSaved, mode = 'list') {
+            const card = document.createElement('div');
+            card.className = 'card';
+            let actionBtn = '';
+            if (mode === 'records') {
+                actionBtn = `<button class="delete-btn" onclick="toggleSave('${item.id}', true)">${trashIcon} Hapus</button>`;
+            } else {
+                const btnClass = isSaved ? 'save-btn filled' : 'save-btn outline';
+                const icon = isSaved ? bookmarkFilled : bookmarkOutline;
+                actionBtn = `<button class="${btnClass}" onclick="toggleSave('${item.id}', ${isSaved})">${icon}</button>`;
+            }
+            card.innerHTML = `
+                <img src="${item.gambar}" class="card-img" alt="${item.judul}" onerror="this.style.display='none'">
+                <div class="card-info" onclick="showDetail('${item.id}')">
+                    <div class="card-title">${item.judul}</div>
+                    <div class="card-desc">${item.gejala}</div>
+                </div>
+                ${actionBtn}
+            `;
+            return card;
+        }
+
+        //iniii ituuu kalau yang dicari ga adaaa di data array nyaa, jadi data.length nya = 0, nanti muncul tulisan deh
+        function renderList(data) {
+            listContainer.innerHTML = '';
+            if (data.length === 0) {
+                listContainer.innerHTML = '<p style="text-align:center; color:#6b7280; margin-top:20px;">Tidak ada panduan yang cocok.</p>';
+                return;
+            }
+            data.forEach(item => listContainer.appendChild(createCard(item, currentSavedIds.has(item.id), 'list')));
+        }
+
+        //iniii kkalau buka halaman medical record tapiii belum ada yan disimpen
+        function renderRecordsList() {
+            recordsListContainer.innerHTML = '';
+            const savedData = dataP3K.filter(item => currentSavedIds.has(item.id));
+            if (savedData.length === 0) {
+                recordsListContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><p style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Belum ada catatan medis</p><p style="font-size: 14px;">Klik ikon bookmark di halaman Panduan untuk menyimpan referensi</p></div>`;
+                return;
+            }
+            savedData.forEach(item => recordsListContainer.appendChild(createCard(item, true, 'records')));
+        }
+
+        //iniii tu buat pencarian, nanti semua semuua dijadiin huruf kecill terus dicocokin deh saama kategri gejala di array, kalau ada nanti muncull
+        function renderAll() {
+            const keyword = searchInput.value.toLowerCase();
+            const filtered = dataP3K.filter(item => item.judul.toLowerCase().includes(keyword) || item.gejala.toLowerCase().includes(keyword));
+            renderList(filtered);
+        }
+
+        searchInput.addEventListener('input', renderAll);
+
+        //iniii waktu buka halaman detaill, id itu nerma id yang diklik, .find itu buat cari objek yg id nya ccok. .forEach itu buat bikin kotak 1,2,3 secara otomatis. terusss home display nya di none jadii ga kelihatan atau ga muncull
+        window.showDetail = function(id) {
+            const item = dataP3K.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('d-gambar').src = item.gambar;
+            document.getElementById('d-judul').textContent = item.judul;
+            document.getElementById('d-gejala').textContent = item.gejala;
+            const langkahContainer = document.getElementById('d-langkah');
+            langkahContainer.innerHTML = '';
+            item.langkah.forEach((step, index) => {
+                langkahContainer.innerHTML += `<div class="step-item"><div class="step-num">${index + 1}</div><div class="step-text">${step}</div></div>`;
+            });
+            homeView.style.display = 'none';
+            recordsView.style.display = 'none';
+            detailView.style.display = 'block';
+            window.scrollTo(0, 0);
+        };
+
+        //ini button kebalii. kalau di lihat yang aktif terakhir dii record nanti kalau di pencet kembali dia kembalinya ke record deh, tapii kalau else dia ke homee
+        window.goBack = function() {
+            detailView.style.display = 'none';
+            if (lastActiveView === 'records') showRecords();
+            else showHome();
+        };
+
+        renderAll();
+    </script>
+
+    <script>
+        // Mendaftarkan Service Worker agar bisa jalan offline
+        if ('serviceWorker' in navigator) { //iniii buatt cek support ga browsernyak
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('Service Worker berhasil didaftarkan:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Pendaftaran Service Worker gagal:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
